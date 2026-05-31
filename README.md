@@ -20,6 +20,10 @@ Simulates dynamic multicopter behavior with configurable architecture, mass prop
   - position, velocity, acceleration
   - orientation, angular velocity, angular acceleration
   - total power draw
+- Run an interactive demo app with:
+  - simple live 3D multicopter model view
+  - throttle/pitch/roll/yaw controls
+  - telemetry display for position, speed, pitch, roll, yaw, and power
 
 ## Quick example
 
@@ -63,4 +67,18 @@ Run:
 
 ```bash
 python -m unittest
+```
+
+## Run simulation
+
+Interactive GUI (preferred):
+
+```bash
+python run_simulation.py
+```
+
+Headless mode (works in terminal-only environments):
+
+```bash
+python run_simulation.py --headless --duration 10 --dt 0.02
 ```

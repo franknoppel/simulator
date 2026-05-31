@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from math import cos, pi, sin, sqrt
+from math import asin, atan2, cos, degrees, pi, sin, sqrt
 from typing import Callable, Dict, Iterable, List, Mapping, MutableMapping, Optional, Sequence, Tuple
 
 Vector3 = Tuple[float, float, float]
@@ -307,3 +307,25 @@ def estimate_inertia_tensor(elements: Iterable[MassElement], cog_m: Optional[Vec
         (i_xy, i_yy, i_yz),
         (i_xz, i_yz, i_zz),
     )
+
+
+def quaternion_to_euler_deg(orientation: Quaternion) -> Vector3:
+    q = orientation.normalized()
+
+    sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z)
+    cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
+    roll = atan2(sinr_cosp, cosr_cosp)
+
+    sinp = 2.0 * (q.w * q.y - q.z * q.x)
+    if sinp >= 1.0:
+        pitch = pi / 2.0
+    elif sinp <= -1.0:
+        pitch = -pi / 2.0
+    else:
+        pitch = asin(sinp)
+
+    siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+    cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+    yaw = atan2(siny_cosp, cosy_cosp)
+
+    return (degrees(roll), degrees(pitch), degrees(yaw))

@@ -1,4 +1,6 @@
 import math
+import subprocess
+import sys
 import unittest
 
 from simulator import (
@@ -6,9 +8,11 @@ from simulator import (
     MassElement,
     MulticopterSimulator,
     PropulsionUnit,
+    Quaternion,
     ThrustVectorActuator,
     estimate_inertia_tensor,
     estimate_mass_and_cog,
+    quaternion_to_euler_deg,
 )
 
 
@@ -73,6 +77,26 @@ class SimulatorTests(unittest.TestCase):
         self.assertGreater(state.acceleration_m_s2[2], 0.0)
         self.assertGreater(state.position_m[2], 0.0)
         self.assertAlmostEqual(state.total_power_kw, 4.0)
+
+    def test_quaternion_to_euler_deg(self):
+        q = Quaternion.from_axis_angle((1.0, 0.0, 0.0), math.pi / 2.0)
+        roll, pitch, yaw = quaternion_to_euler_deg(q)
+        self.assertAlmostEqual(roll, 90.0, places=4)
+        self.assertAlmostEqual(pitch, 0.0, places=4)
+        self.assertAlmostEqual(yaw, 0.0, places=4)
+
+    def test_headless_runner_outputs_telemetry(self):
+        completed = subprocess.run(
+            [sys.executable, "run_simulation.py", "--headless", "--duration", "0.1", "--dt", "0.05"],
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+        self.assertIn("Simulation complete", completed.stdout)
+        self.assertIn("Position [m]:", completed.stdout)
+        self.assertIn("Speed [m/s]:", completed.stdout)
+        self.assertIn("Attitude [deg]", completed.stdout)
+        self.assertIn("Power [kW]:", completed.stdout)
 
 
 if __name__ == "__main__":
